@@ -15,26 +15,54 @@ import {
   Text,
   Textarea,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useState } from "react";
 import Bred from "../components/Bred";
 import { Controller, useForm } from "react-hook-form";
+import axios from "axios";
 
 function Request() {
+  const [isLoading, setIsLoading] = useState(false);
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const submitData = (data) => {
-    console.log(data);
+  const submitData = async (data) => {
+    setIsLoading(true);
+    const student = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      studentId: data.studentId,
+      phone: data.phoneStudent,
+      email: data.emailStudent,
+    };
+    const company = {
+      c_name: data.company,
+      c_address: data.address,
+      c_phone: data.phone,
+      c_email: data.email,
+    };
+    const document = {
+      d_branch: data.major,
+      d_coopYear: data.coopYear,
+      d_term: data.term,
+      d_start_date: data.dateStart,
+      d_end_date: data.dateEnd,
+      d_type: data.type,
+    };
+    await axios.post("http://localhost:8080/student", student);
+    await axios.post("http://localhost:8080/company", company);
+    await axios.post("http://localhost:8080/document", document);
+    console.log(student,company,document)
+    setIsLoading(false);
   };
   return (
     <Box minW={"100%"}>
-      <Bred data={'กรอกฟอร์มข้อมูลหนังสือส่งตัวนักศึกษา'}/>
+      <Bred data={"กรอกฟอร์มข้อมูลหนังสือส่งตัวนักศึกษา"} />
       <Divider my={2} />
       <Box my={4}>
         <Heading as={"h4"} size={"md"} textAlign={"center"}>
-          กรอกฟอร์มข้อมูลหนังสือส่งตัวนักศึกษา
+        กรอกฟอร์มข้อมูลหนังสือส่งตัวนักศึกษา
         </Heading>
       </Box>
       <Text color={"red"}>
@@ -64,7 +92,7 @@ function Request() {
         />
         <Flex>
           <Controller
-            name="major"
+            name="type"
             control={control}
             rules={{ required: true }}
             render={({ field: { name, onChange } }) => (
@@ -73,10 +101,10 @@ function Request() {
                   <FormLabel>ประเภทปฏิบัติงาน</FormLabel>
                   <RadioGroup onChange={onChange}>
                     <Stack spacing={5} direction="column">
-                      <Radio colorScheme="green" value="1">
+                      <Radio colorScheme="green" value="ฝึกงาน">
                         ฝึกงาน
                       </Radio>
-                      <Radio colorScheme="green" value="2">
+                      <Radio colorScheme="green" value="ฝึกสหกิจ">
                         ฝึกสหกิจ
                       </Radio>
                     </Stack>
@@ -89,7 +117,10 @@ function Request() {
             name="coopYear"
             control={control}
             defaultValue={""}
-            rules={{ required: true }}
+            rules={{
+              required: true,
+              pattern: { value: /\d/ },
+            }}
             render={({ field: { name, value, onChange } }) => (
               <FormControl isInvalid={errors[name]} mt={4}>
                 <Flex alignItems={"center"}>
@@ -131,7 +162,7 @@ function Request() {
                   <Input
                     value={value}
                     onChange={onChange}
-                    placeholder="Select Date and Time"
+                    placeholder="Select Date"
                     size="md"
                     type="date"
                   />
@@ -140,7 +171,7 @@ function Request() {
             )}
           />
           <Controller
-            name="dataEnd"
+            name="dateEnd"
             control={control}
             rules={{ required: true }}
             render={({ field: { name, value, onChange } }) => (
@@ -150,7 +181,7 @@ function Request() {
                   <Input
                     value={value}
                     onChange={onChange}
-                    placeholder="Select Date and Time"
+                    placeholder="Select Date"
                     size="md"
                     type="date"
                   />
@@ -183,7 +214,11 @@ function Request() {
                 name="phone"
                 control={control}
                 defaultValue={""}
-                rules={{ required: true }}
+                rules={{
+                  pattern: {
+                    value: /\d/,
+                  },
+                }}
                 render={({ field: { name, value, onChange } }) => (
                   <FormControl isInvalid={errors[name]} mt={4}>
                     <Flex alignItems={"center"}>
@@ -252,7 +287,11 @@ function Request() {
                 name="studentId"
                 control={control}
                 defaultValue={""}
-                rules={{ required: true }}
+                rules={{
+                  pattern: {
+                    value: /\d/,
+                  },
+                }}
                 render={({ field: { name, value, onChange } }) => (
                   <FormControl isInvalid={errors[name]} mt={4}>
                     <Flex alignItems={"center"}>
@@ -325,7 +364,12 @@ function Request() {
           </Box>
         </Center>
         <Center my={3}>
-          <Button type="submit" mx={4} colorScheme="green">
+          <Button
+            isLoading={isLoading}
+            type="submit"
+            mx={4}
+            colorScheme="green"
+          >
             บันทึก
           </Button>
           <Button type="reset" colorScheme="#fff" color={"#000"}>
