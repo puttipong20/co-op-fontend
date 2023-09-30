@@ -10,8 +10,8 @@ import ListStatus from "./pages/ListStatus";
 import Login from "./pages/Login";
 
 function App() {
-  const [isLogin, setIsLogin] = useState(false);
-  const [user,setUser] = useState()
+  const [isLogin, setIsLogin] = useState(true);
+  const [user,setUser] = useState("user@gmail.com")
   const navigate = useNavigate()
   //useEffect
   useEffect(() => {

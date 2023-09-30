@@ -22,47 +22,58 @@ import Bred from "../components/Bred";
 import { Controller, useForm } from "react-hook-form";
 import { AiOutlineSearch } from "react-icons/ai";
 import axios from "axios";
+import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { db } from "../services/config-db";
+import EditRequest from "../components/editRequest";
 
 function Home() {
   const { control } = useForm();
-  const [data1, setData1] = useState();
-  const [data2, setData2] = useState();
-  const [data3, setData3] = useState();
+  const [isEdit,setIsEdit] = useState(false)
+  // const [allData1,setAllData1] = useState()
+  // const [data1, setData1] = useState();
+  // const [data2, setData2] = useState();
+  // const [data3, setData3] = useState();
   const [allData, setAllData] = useState([]);
   useEffect(() => {
     getDate();
   }, []);
   useEffect(() => {
-    combind();
-  }, [data3]);
+    getDate()
+  },[isEdit])
+  // useEffect(() => {
+  //   combind();
+  // }, [data3]);
   const getDate = async () => {
-    await axios.get("http://localhost:8080/student").then((res) => {
-      setData1(res.data);
-    });
-    await axios.get("http://localhost:8080/company").then((res) => {
-      setData2(res.data);
-    });
-    await axios.get("http://localhost:8080/document").then((res) => {
-      setData3(res.data);
-    });
+    getDocs(collection(db,"Students")).then((docs) => {
+      const data = []
+      docs.forEach((item) => {
+        data.push({...item.data(),id: item.id})
+      })
+      setAllData(data)
+    })
   };
-  const combind = () => {
-    if (data1 && data2 && data3) {
-      console.log("combind");
-      let allList = [];
-      let list = {};
-      data1.forEach((item, index) => {
-        list = {
-          s_firstName: data1[index].firstName,
-          s_lastName: data1[index].lastName,
-          c_name: data2[index].c_name,
-          d_type: data3[index].d_type,
-        };
-        allList.push(list);
-      });
-      setAllData(allList);
-    }
-  };
+  const onDelete = (id) => {
+    console.log(id)
+    deleteDoc(doc(db, "Students", id));
+    getDate()
+  }
+  // const combind = () => {
+  //   if (data1 && data2 && data3) {
+  //     console.log("combind");
+  //     let allList = [];
+  //     let list = {};
+  //     data1.forEach((item, index) => {
+  //       list = {
+  //         s_firstName: data1[index].firstName,
+  //         s_lastName: data1[index].lastName,
+  //         c_name: data2[index].c_name,
+  //         d_type: data3[index].d_type,
+  //       };
+  //       allList.push(list);
+  //     });
+  //     setAllData(allList);
+  //   }
+  // };
   return (
     <Box minW={"100%"}>
       <Bred />
@@ -124,17 +135,15 @@ function Home() {
                 {allData &&
                   allData.map((item, index) => (
                     <Tr key={index}>
-                      <Td textAlign={"center"}>{item.d_type}</Td>
-                      <Td textAlign={"center"}>{item.c_name}</Td>
+                      <Td textAlign={"center"}>{item.type}</Td>
+                      <Td textAlign={"center"}>{item.company}</Td>
                       <Td textAlign={"center"}>
-                        {item.s_firstName} {item.s_lastName}
+                        {item.firstName} {item.lastName}
                       </Td>
                       <Td textAlign={"center"}>
                         <Flex>
-                          <Button mx={2} colorScheme="yellow">
-                            แก้ไข
-                          </Button>
-                          <Button colorScheme="red">ลบ</Button>
+                          <EditRequest data={item} setIsEdit={setIsEdit}/>
+                          <Button onClick={() => onDelete(item.id)} colorScheme="red">ลบ</Button>
                         </Flex>
                       </Td>
                     </Tr>

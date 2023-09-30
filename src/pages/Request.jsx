@@ -19,7 +19,8 @@ import {
 import React, { useState } from "react";
 import Bred from "../components/Bred";
 import { Controller, useForm } from "react-hook-form";
-import axios from "axios";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../services/config-db";
 
 function Request() {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,31 +31,35 @@ function Request() {
   } = useForm();
   const submitData = async (data) => {
     setIsLoading(true);
-    const student = {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      studentId: data.studentId,
-      phone: data.phoneStudent,
-      email: data.emailStudent,
-    };
-    const company = {
-      c_name: data.company,
-      c_address: data.address,
-      c_phone: data.phone,
-      c_email: data.email,
-    };
-    const document = {
-      d_branch: data.major,
-      d_coopYear: data.coopYear,
-      d_term: data.term,
-      d_start_date: data.dateStart,
-      d_end_date: data.dateEnd,
-      d_type: data.type,
-    };
-    await axios.post("http://localhost:8080/student", student);
-    await axios.post("http://localhost:8080/company", company);
-    await axios.post("http://localhost:8080/document", document);
-    console.log(student,company,document)
+    console.log(data)
+    addDoc(collection(db,"Students"),data).then( res => {
+      console.log(res.iid)
+    })
+    // const student = {
+    //   firstName: data.firstName,
+    //   lastName: data.lastName,
+    //   studentId: data.studentId,
+    //   phone: data.phoneStudent,
+    //   email: data.emailStudent,
+    // };
+    // const company = {
+    //   c_name: data.company,
+    //   c_address: data.address,
+    //   c_phone: data.phone,
+    //   c_email: data.email,
+    // };
+    // const document = {
+    //   d_branch: data.major,
+    //   d_coopYear: data.coopYear,
+    //   d_term: data.term,
+    //   d_start_date: data.dateStart,
+    //   d_end_date: data.dateEnd,
+    //   d_type: data.type,
+    // };
+    // await axios.post("http://localhost:8080/student", student);
+    // await axios.post("http://localhost:8080/company", company);
+    // await axios.post("http://localhost:8080/document", document);
+    // console.log(student,company,document)
     setIsLoading(false);
   };
   return (
@@ -118,10 +123,6 @@ function Request() {
             name="coopYear"
             control={control}
             defaultValue={""}
-            rules={{
-              required: true,
-              pattern: { value: /\d/ },
-            }}
             render={({ field: { name, value, onChange } }) => (
               <FormControl isInvalid={errors[name]} mt={4}>
                 <Flex alignItems={"center"}>
@@ -215,11 +216,6 @@ function Request() {
                 name="phone"
                 control={control}
                 defaultValue={""}
-                rules={{
-                  pattern: {
-                    value: /\d/,
-                  },
-                }}
                 render={({ field: { name, value, onChange } }) => (
                   <FormControl isInvalid={errors[name]} mt={4}>
                     <Flex alignItems={"center"}>
@@ -288,11 +284,6 @@ function Request() {
                 name="studentId"
                 control={control}
                 defaultValue={""}
-                rules={{
-                  pattern: {
-                    value: /\d/,
-                  },
-                }}
                 render={({ field: { name, value, onChange } }) => (
                   <FormControl isInvalid={errors[name]} mt={4}>
                     <Flex alignItems={"center"}>
